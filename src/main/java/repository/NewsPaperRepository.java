@@ -1,10 +1,7 @@
 package repository;
 
 
-import java.sql.SQLException;
-import java.sql.CallableStatement;
-import java.sql.ResultSet;
-import java.sql.Connection;
+import java.sql.*;
 import java.util.ArrayList;
 
 import com.mysql.cj.protocol.Resultset;
@@ -13,11 +10,12 @@ import dto.NewsPaperDTO;
 
 public class NewsPaperRepository {
 
-    public ArrayList<NewsPaperDTO> getNewsPapers()throws SQLException, NullPointerException {
+    public ArrayList<NewsPaperDTO> getNewsPapersByDate(Date date)throws SQLException, NullPointerException {
         ArrayList<NewsPaperDTO> newsPapers = new ArrayList<>();
 
         try(Connection connection = DatabaseConfig.getConnection()){
-            CallableStatement stmt = connection.prepareCall("{call get_newspapers()}");
+            CallableStatement stmt = connection.prepareCall("{call get_newspapers_by_date(?)}");
+            stmt.setDate(1, date);
             boolean hasResultSet = stmt.execute();
 
             if(hasResultSet){
@@ -36,6 +34,22 @@ public class NewsPaperRepository {
 
             return (!newsPapers.isEmpty())? newsPapers : null;
 
+        }
+    }
+
+    public String createNewsPaper(NewsPaperDTO newsPaper)throws SQLException, NullPointerException {
+        try(Connection connection = DatabaseConfig.getConnection()){
+
+            CallableStatement stmt = connection.prepareCall("{call create_newspaper(?,?,?)}");
+
+            stmt.setString(1, newsPaper.getName());
+            stmt.setDate(2, newsPaper.getDate());
+            stmt.setInt(3, newsPaper.getAmount());
+            stmt.registerOutParameter(4, Types.VARCHAR);
+
+            stmt.execute();
+
+            return stmt.getString(4);
         }
     }
 

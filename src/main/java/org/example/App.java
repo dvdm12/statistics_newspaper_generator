@@ -2,7 +2,9 @@ package org.example;
 
 import repository.NewsPaperRepository;
 
+import java.sql.Date;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
 import dto.NewsPaperDTO;
 
@@ -17,9 +19,10 @@ public class App
         NewsPaperRepository newsPaperRepository = new NewsPaperRepository();
 
         try{
-            List<NewsPaperDTO>listNewsPaper = newsPaperRepository.getNewsPapers();
+            Date date = Date.valueOf(LocalDate.of(2024,3,15));
+            List<NewsPaperDTO>listNewsPaper = newsPaperRepository.getNewsPapers(date);
 
-            listNewsPaper.stream().forEach(System.out::println);
+            listNewsPaper.stream().forEach(dates -> System.out.println(dates.getName()));
 
         }catch (SQLException e){
             e.printStackTrace();
